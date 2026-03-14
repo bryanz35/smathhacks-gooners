@@ -6,6 +6,9 @@ species in coral reefs.
 Setup:
 Laptop: Runs main python script, opens gui and allows user keyboard control.
 Communicates with raspberry pi
-Raspberry PI: Runs opencv image detection and controls arduino. Communicates with
-cameras.
+
+
+Raspberry PI: Runs opencv image detection and controls arduino. Communicates with cameras.
+
+
 Arduino uno: manages sensors and motors (but not cameras)
