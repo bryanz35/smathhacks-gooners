@@ -1,5 +1,5 @@
-# keyboard input manager for main gui
-# sends motor commands to Arduino over serial (WASD + stop)
+# Arduino serial controller (runs on Raspberry Pi)
+# Receives motor commands from main.py and sends to Arduino over serial
 
 import serial
 import serial.tools.list_ports
@@ -27,7 +27,7 @@ def find_arduino(preferred_port: str | None = None) -> str | None:
 
 
 class ArduinoController:
-    """Manages serial connection and translates key presses to motor commands."""
+    """Manages serial connection and translates commands to motor signals."""
 
     def __init__(self, port: str | None = None):
         self.ser = None
