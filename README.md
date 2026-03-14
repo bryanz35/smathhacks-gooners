@@ -1,4 +1,4 @@
-# Guide Ocean Observation and Navigation Explorer Rover (GOONER)
+# Guided Ocean Observation and Navigation Explorer Rover (GOONER)
 
 Project: small submersible that takes images and detects invasive
 species in coral reefs.
