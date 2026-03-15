@@ -13,6 +13,8 @@ This project is brought to you by four students attending the North Carolina
 School of Science and Mathematics (NCSSM). Our team members include Michael
 Chen, Anderson Lam, Bryan Zhong, and Linda Duong!
 
+![GOONER](https://github.com/bryanz35/smathhacks-gooners/blob/master/doc-images/product.jpg?raw=true)
+
 ## Abstract
 
 Guided Ocean Observation and Navigation Exploration Rover (GOONER) is a
