@@ -1,40 +1,51 @@
-"""Read video from an ESP32-CAM-MB connected via USB serial and display it."""
-
 import cv2
+import numpy as np
+import serial
 import sys
 
-SERIAL_PORT = "/dev/ttyUSB0"
-BAUD_RATE = 115200 
-
+SERIAL_PORT = "/dev/cu.usbserial-110"
+BAUD_RATE = 115200
 
 def main():
     port = sys.argv[1] if len(sys.argv) > 1 else SERIAL_PORT
-
     print(f"Opening ESP32-CAM on {port} ...")
-    cap = cv2.VideoCapture(port)
-    cap.set(cv2.CAP_PROP_FOURCC, cv2.VideoWriter_fourcc(*"MJPG"))
-    cap.set(cv2.CAP_PROP_FRAME_WIDTH, 640)
-    cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 480)
-
-    if not cap.isOpened():
-        print(f"Error: could not open {port}")
-        sys.exit(1)
-
+    
+    ser = serial.Serial(port, BAUD_RATE, timeout=5)
     print("Connected. Press 'q' to quit.")
 
     while True:
-        ret, frame = cap.read()
-        if not ret:
-            print("Failed to read frame.")
+        # Read 4-byte frame length
+        raw_len = ser.read(4)
+        if len(raw_len) < 4:
+            print("Timeout waiting for frame length")
+            continue
+        
+        frame_len = int.from_bytes(raw_len, byteorder='little')
+        
+        # Sanity check — reject obviously wrong sizes
+        if frame_len < 100 or frame_len > 100_000:
+            print(f"Bad frame length: {frame_len}, resyncing...")
+            ser.reset_input_buffer()
+            continue
+        
+        # Read the JPEG data
+        jpeg_data = ser.read(frame_len)
+        if len(jpeg_data) < frame_len:
+            print("Incomplete frame, skipping")
+            continue
+
+        # Decode and display
+        frame = cv2.imdecode(np.frombuffer(jpeg_data, dtype=np.uint8), cv2.IMREAD_COLOR)
+        if frame is None:
+            print("Failed to decode frame")
             continue
 
         cv2.imshow("ESP32-CAM", frame)
-        if cv2.waitKey(1) & 0xFF == ord("q"):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
-    cap.release()
+    ser.close()
     cv2.destroyAllWindows()
-
 
 if __name__ == "__main__":
     main()
