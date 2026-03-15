@@ -1,108 +1,95 @@
-# OpenCV image recognition for invasive species in coral reefs
-# Called by main.py (runs on laptop)
-# Input: underwater image
-# Functions: box highlight for invasive species
+# YOLO ONNX object detection for invasive species in coral reefs
+# Loads best.onnx from machine-learning/output-yolo/ and runs inference via OpenCV DNN
 
 import os
 import cv2
 import numpy as np
 
 CONFIDENCE_THRESHOLD = 0.5
+NMS_THRESHOLD = 0.45
+INPUT_SIZE = 320
 
-# Target invasive coral reef species (matched against COCO-style labels or custom model)
-INVASIVE_SPECIES = {
-    "lionfish",
-    "crown-of-thorns starfish",
-    "green sea turtle",  # placeholder; swap with your custom class names
-}
+INVASIVE_SPECIES = {"lionfish"}
 
 _DIR = os.path.dirname(os.path.abspath(__file__))
-MODEL_WEIGHTS = os.path.join(_DIR, "model.caffemodel")
-MODEL_CONFIG  = os.path.join(_DIR, "model.prototxt")
-LABELS_FILE   = os.path.join(_DIR, "labels.txt")
+_REPO = os.path.dirname(_DIR)
+MODEL_PATH = os.path.join(_REPO, "machine-learning", "output-yolo", "best.onnx")
+LABELS_FILE = os.path.join(_REPO, "machine-learning", "output-yolo", "labels.txt")
 
 
-def load_model(weights_path: str = MODEL_WEIGHTS,
-               config_path: str  = MODEL_CONFIG,
-               labels_path: str  = LABELS_FILE):
-    """
-    Load an OpenCV DNN model and its class labels.
-
-    Returns:
-        (net, labels) where net is the DNN network and labels is a list of
-        class name strings indexed by class ID.
-    """
-    net = cv2.dnn.readNetFromCaffe(config_path, weights_path)
-
+def load_model(model_path: str = MODEL_PATH, labels_path: str = LABELS_FILE):
+    """Load YOLO ONNX model and class labels. Returns (net, labels)."""
+    net = cv2.dnn.readNetFromONNX(model_path)
     with open(labels_path, "r") as f:
-        labels = [line.strip() for line in f.readlines()]
-
+        labels = [line.strip() for line in f if line.strip()]
     return net, labels
 
 
 def detect(frame: np.ndarray, net, labels: list[str]) -> list[dict]:
     """
-    Run object detection on a single BGR underwater frame.
+    Run YOLO detection on a BGR frame.
 
-    Args:
-        frame:  BGR image as a numpy array (H x W x 3).
-        net:    OpenCV DNN network from load_model().
-        labels: Class label list from load_model().
-
-    Returns:
-        List of dicts for each detection above the confidence threshold:
-            'label'      - class name string
-            'confidence' - float in [0, 1]
-            'box'        - (x, y, w, h) in pixel coordinates
-            'invasive'   - True if the species is in INVASIVE_SPECIES
+    Returns list of dicts with keys: label, confidence, box (x, y, w, h), invasive.
     """
     h, w = frame.shape[:2]
+
+    # Preprocess: letterbox to INPUT_SIZE x INPUT_SIZE
     blob = cv2.dnn.blobFromImage(
-        cv2.resize(frame, (300, 300)),
-        scalefactor=0.007843,
-        size=(300, 300),
-        mean=127.5,
+        frame, scalefactor=1.0 / 255.0,
+        size=(INPUT_SIZE, INPUT_SIZE),
+        swapRB=True, crop=False,
     )
     net.setInput(blob)
-    detections = net.forward()  # shape: (1, 1, N, 7)
+    outputs = net.forward()  # shape: (1, 4+num_classes, num_preds)
 
-    results = []
-    for i in range(detections.shape[2]):
-        confidence = float(detections[0, 0, i, 2])
-        if confidence < CONFIDENCE_THRESHOLD:
+    # Transpose to (num_preds, 4+num_classes)
+    outputs = outputs[0].T  # (num_preds, 18)
+
+    boxes = []
+    confidences = []
+    class_ids = []
+
+    x_scale = w / INPUT_SIZE
+    y_scale = h / INPUT_SIZE
+
+    for row in outputs:
+        cx, cy, bw, bh = row[0], row[1], row[2], row[3]
+        scores = row[4:]
+        max_score = float(np.max(scores))
+        if max_score < CONFIDENCE_THRESHOLD:
             continue
 
-        class_id = int(detections[0, 0, i, 1])
-        label = labels[class_id] if class_id < len(labels) else "unknown"
+        class_id = int(np.argmax(scores))
 
-        x1 = int(detections[0, 0, i, 3] * w)
-        y1 = int(detections[0, 0, i, 4] * h)
-        x2 = int(detections[0, 0, i, 5] * w)
-        y2 = int(detections[0, 0, i, 6] * h)
+        # Convert from center coords to top-left corner
+        x1 = int((cx - bw / 2) * x_scale)
+        y1 = int((cy - bh / 2) * y_scale)
+        box_w = int(bw * x_scale)
+        box_h = int(bh * y_scale)
 
+        boxes.append([x1, y1, box_w, box_h])
+        confidences.append(max_score)
+        class_ids.append(class_id)
+
+    # Non-maximum suppression
+    indices = cv2.dnn.NMSBoxes(boxes, confidences, CONFIDENCE_THRESHOLD, NMS_THRESHOLD)
+
+    results = []
+    for i in indices:
+        idx = i if isinstance(i, int) else i[0]
+        label = labels[class_ids[idx]] if class_ids[idx] < len(labels) else "unknown"
         results.append({
-            "label":      label,
-            "confidence": confidence,
-            "box":        (x1, y1, x2 - x1, y2 - y1),
-            "invasive":   label.lower() in INVASIVE_SPECIES,
+            "label": label,
+            "confidence": confidences[idx],
+            "box": tuple(boxes[idx]),
+            "invasive": label.lower() in INVASIVE_SPECIES,
         })
 
     return results
 
 
 def draw_detections(frame: np.ndarray, detections: list[dict]) -> np.ndarray:
-    """
-    Draw bounding boxes and labels onto a copy of frame.
-
-    Invasive species boxes are drawn in red; others in green.
-
-    Args:
-        frame:      BGR image.
-        detections: Output list from detect().
-
-    Returns:
-        Annotated BGR image.
-    """
+    """Draw bounding boxes and labels. Invasive species in red, others in green."""
     output = frame.copy()
     for det in detections:
         x, y, bw, bh = det["box"]

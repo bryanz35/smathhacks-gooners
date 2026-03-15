@@ -1,3 +1,4 @@
 machine-learning/data/*
 machine-learning/lionfish/*
 *.zip
+*.pt
