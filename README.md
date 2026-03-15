@@ -3,12 +3,15 @@
 Project: small submersible that takes images and detects invasive
 species in coral reefs.
 
-Setup:
-Laptop: Runs main python script, opens gui and allows user keyboard control.
-Communicates with raspberry pi
+### Setup:
 
+Frontend: HTML/CSS/JS
 
-Raspberry PI: Runs opencv image detection and controls arduino. Communicates with cameras.
+Main window frame with minimal styling and javascript handling of keypresses
+WASD
 
+Flask: Handles WASD presses and processes/loads images into HTML frontend.
+Python file to manage camera modules.
 
-Arduino uno: manages sensors and motors (but not cameras)
+Arduino: manages sensors and motors and receives WASD inputs from python
+backend.
