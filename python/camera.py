@@ -4,7 +4,7 @@ import cv2
 import sys
 
 SERIAL_PORT = "/dev/ttyUSB0"
-BAUD_RATE = 115200
+BAUD_RATE = 115200 
 
 
 def main():

@@ -9,7 +9,7 @@ from flask import Flask, Response, jsonify, request, send_from_directory
 
 from input import ArduinoController
 
-SERIAL_PORT = "/dev/ttyUSB0"
+SERIAL_PORT = "/dev/cu.usbmodem1101" #VARIABLE PORT
 BAUD_RATE = 115200
 
 app = Flask(__name__, static_folder="frontend", static_url_path="/static")
@@ -95,11 +95,6 @@ def command():
 
 
 if __name__ == "__main__":
-    port = sys.argv[1] if len(sys.argv) > 1 else SERIAL_PORT
-
-    arduino = ArduinoController()
-
-    cam_thread = threading.Thread(target=capture_loop, args=(port,), daemon=True)
-    cam_thread.start()
+    arduino = ArduinoController(port="/dev/cu.usbmodem1101") #VARIABLE PORT
 
     app.run(host="0.0.0.0", port=8080, debug=False)

@@ -4,7 +4,7 @@
 import serial
 import serial.tools.list_ports
 
-BAUD_RATE = 9600
+BAUD_RATE = 115200
 
 # key -> serial command byte
 KEY_MAP = {
