@@ -5,6 +5,7 @@ import threading
 import requests
 import cv2
 from flask import Flask, Response, jsonify, request, send_from_directory
+from model import load_model, detect, draw_detections
 
 # ---- CONFIGURE THESE ----
 FEATHER_IP  = "http://172.20.10.6"  
@@ -13,6 +14,11 @@ CAMERA2_URL = "http://172.20.10.5/stream"  # Second ESP32-CAM
 # -------------------------
 
 app = Flask(__name__, static_folder="frontend", static_url_path="/static")
+
+# ---- YOLO MODEL ----
+print("Loading YOLO model...")
+yolo_net, yolo_labels = load_model()
+print(f"YOLO model loaded — {len(yolo_labels)} classes")
 
 KEY_MAP = {"w": "F", "a": "L", "s": "B", "d": "R"}
 
@@ -50,6 +56,8 @@ def generate_frames(getter, lock):
         if frame is None:
             time.sleep(0.03)
             continue
+        detections = detect(frame, yolo_net, yolo_labels)
+        frame = draw_detections(frame, detections)
         ret, jpeg = cv2.imencode(".jpg", frame)
         if not ret:
             continue
