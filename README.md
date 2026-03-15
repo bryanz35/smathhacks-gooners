@@ -15,3 +15,6 @@ Python file to manage camera modules.
 
 Arduino: manages sensors and motors and receives WASD inputs from python
 backend.
+
+
+Note: raspberrypi will no longer be implemented and should be ignored.
