@@ -298,7 +298,8 @@ the water, an Adafruit Feather for Wi-Fi purposes, and a battery pack for power.
 
 ## Electrical Engineering
 
-Talk about wiring, add an electrical wiring diagram, process of soldering maybe?
+Below is KiCad render of our wiring diagram:
+![Wiring diagram](https://github.com/bryanz35/smathhacks-gooners/blob/master/doc-images/wiring.png?raw=true)
 
 
 ## Impact
