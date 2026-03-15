@@ -37,6 +37,8 @@ control the rover and see live video along with fish classification.
 Talk about why we did this project, and why it’s important (invasive species,
 conversation with Dr. Love)
 
+Within the last year, Earth reached its very first catastrophic climate tipping point, and it directly involves coral reefs. Global temperatures have reached between 1.2 to 1.4°C of global warming above where they were in the late 19th century. Coral reefs are now in grave danger, with over 80% of reefs in 80+ countries affected by extremely high ocean temperatures. While it's not too late to save coral reefs, it means we need to take action to protect them and ensure they can continue to survive, even with climate change.
+
 One of the biggest issues coral reefs face is the addition of invasive species.
 For example, researchers have found that a single lionfish living on a coral
 reef can reduce recruitment of native reef fish by 79 percent. Current solutions
@@ -132,6 +134,7 @@ stream passes through `detect()` and `draw_detections()` before being sent to
 the browser. Invasive species (lionfish) are highlighted with red bounding
 boxes; all other detected fish get green boxes.
 
+
 ## Fish Detection Classification Model (YOLO)
 
 We built a fish detection model that identifies 14 species of reef fish from
@@ -217,21 +220,11 @@ During the training process, we track model training/validation loss, precision,
 and recall. Below shows the training logs of our model:
 ![Training Logs](https://github.com/bryanz35/smathhacks-gooners/blob/master/doc-images/training_curves.png?raw=true)
 ### Output
-
-Training produces the following artifacts in `machine-learning/output-yolo/`:
-
-| File | Description |
-|------|-------------|
-| `best.pt` | Best YOLO weights (selected by validation mAP) |
-| `best.onnx` | ONNX export used by the Flask backend at runtime |
-| `labels.txt` | Class names, one per line |
-| `history.json` | Per-epoch metrics for custom graphing |
-| `training_curves.png` | 4-panel loss/mAP/precision/recall plot |
-| `data.yaml` | Dataset config with absolute paths |
-| `train/` | Full Ultralytics output (weights, plots, results.csv) |
-
+Our model is relatively accurate in identifying and labeling various fish species. We are specifically interested in model confidence and Intersection of Union (IoU) matching, which measures how closely
+the model predicts the fish bounding box.
+![Model Accuracy](https://github.com/bryanz35/smathhacks-gooners/blob/master/doc-images/modelacc.png?raw=true)
 ![Confusion Matrix](https://raw.githubusercontent.com/bryanz35/smathhacks-gooners/refs/heads/master/doc-images/confusion_matrix.png)
-The deployed model is `best.onnx`, which the backend loads via OpenCV DNN so
+The best-performing model is saved as `best.onnx`, which the backend loads via OpenCV DNN so
 that neither PyTorch nor Ultralytics are needed at runtime.
 
 ### Design choices
@@ -270,7 +263,7 @@ how the thing is controlled maybe idek. The parts we used
 
 
 With the temperature sensor on our project, we are able to detect the
-temperature of water. As coral reefs tend to have a low tolerance for
+temperature of water. As coral reefs tend to have a lgit ow tolerance for
 temperature variations, especially without time to adjust, we can provide early
 warnings for when reefs could become vulnerable to heat stress and coral
 bleaching, which can eventually lead to coral reef deaths.
@@ -296,6 +289,11 @@ involved in the project, while the cameras are connected to a laptop. Some of
 the other things in our project include pumps to ensure our submersible stays in
 the water, an Adafruit Feather for Wi-Fi purposes, and a battery pack for power.
 
+Below is our prototype diagram:
+![Prototype diagram](https://github.com/bryanz35/smathhacks-gooners/blob/master/doc-images/upd-proto.jpg?raw=true)
+
+All of our wiring was contained in a Tupperware container due to lack of other options, time constraints, and the need for a waterproof case. To ensure our submersible could stay in water without floating to the surface or sinking to the bottom, we used the equation F_b = ρVg to calculate buoyant force. Our submersible had to have the same density of the water surrounding it so it would be submerged inside of the water. We know water has a density of 1kg/L and that the acceleration of gravity is 9.8m/s^2. So, we decided to use a container of 2 liters, which required us to hold about 2kg. In ocean water, there would be a higher density because of the salt so calculations would slightly differ.
+
 ## Electrical Engineering
 
 Below is KiCad render of our wiring diagram:
@@ -303,9 +301,6 @@ Below is KiCad render of our wiring diagram:
 
 
 ## Impact
-
-ROV’s impact, positive benefits to society
-
 
 Coral reefs provide homes to more than 25% of marine life on Earth. With this
 project, we want to not only improve underwater life, but we also ensure the
@@ -328,7 +323,7 @@ tupperware case with a sleeker design (see reference sketch) and improving the
 output of our propulsion system.
 
 Additionally, we hope to move the image classification model along with camera
-input handling to a raspberry pi, which will sit inside the submersible and
+input handling to a Raspberry Pi, which will sit inside the submersible and
 communicate with both the arduino and laptop/web server for key input.
 
 We also have room for additional diagnostic modules on the submersible to better
@@ -339,5 +334,3 @@ There is currently no solution for long-distance wireless underwater
 communication. Technology is currently being developed by MIT researchers, but
 we anticipate several years of research before a fully wireless rover is
 feasible.
-
-// TODO: add image caption and markdown embed
