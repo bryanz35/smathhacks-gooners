@@ -1,0 +1,15 @@
+,AngelFish,BlueTang,ButterflyFish,ClownFish,GoldFish,Gourami,MorishIdol,PlatyFish,RibbonedSweetlips,ThreeStripedDamselfish,YellowCichlid,YellowTang,ZebraFish,Lionfish
+AngelFish,0,0,0,0,0,0,0,0,0,0,0,0,0,0
+BlueTang,0,23,0,0,0,0,0,0,0,0,0,0,0,0
+ButterflyFish,0,0,45,0,0,0,0,0,0,0,2,0,0,0
+ClownFish,0,0,0,41,0,0,0,0,0,0,0,0,0,0
+GoldFish,0,0,0,0,133,0,0,1,0,0,0,0,0,0
+Gourami,0,0,0,0,0,210,0,0,0,0,0,0,0,0
+MorishIdol,0,0,0,0,0,0,28,0,0,0,1,0,0,2
+PlatyFish,0,0,0,0,1,0,0,101,0,0,0,0,0,0
+RibbonedSweetlips,0,0,0,0,0,0,0,0,66,0,0,0,0,1
+ThreeStripedDamselfish,0,3,1,0,0,0,0,0,0,102,0,0,0,2
+YellowCichlid,0,1,9,0,0,0,0,1,0,0,80,2,2,0
+YellowTang,0,0,0,0,0,0,0,0,0,0,0,80,0,0
+ZebraFish,0,1,0,0,6,14,0,2,0,0,1,0,231,4
+Lionfish,0,0,1,0,0,0,0,0,0,0,0,0,0,136

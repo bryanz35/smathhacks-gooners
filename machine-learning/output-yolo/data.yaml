@@ -1,0 +1,6 @@
+train: /home/bryan/Desktop/smathhacks-gooners/machine-learning/data/train/images
+val: /home/bryan/Desktop/smathhacks-gooners/machine-learning/data/valid/images
+test: /home/bryan/Desktop/smathhacks-gooners/machine-learning/data/test/images
+
+nc: 14
+names: ['AngelFish', 'BlueTang', 'ButterflyFish', 'ClownFish', 'GoldFish', 'Gourami', 'MorishIdol', 'PlatyFish', 'RibbonedSweetlips', 'ThreeStripedDamselfish', 'YellowCichlid', 'YellowTang', 'ZebraFish', 'Lionfish']
