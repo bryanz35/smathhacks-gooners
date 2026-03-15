@@ -16,8 +16,9 @@ Python file to manage camera modules.
 Arduino: manages sensors and motors and receives WASD inputs from python
 backend.
 
+doc-images/ contains images uploaded for the DevPost markdown documentation
+file.
 
-Note: raspberrypi will no longer be implemented and should be ignored.
 
 ## AI Usage
 Claude was used to quickly test ideas and autocomplete functions, as well as
