@@ -18,3 +18,11 @@ backend.
 
 
 Note: raspberrypi will no longer be implemented and should be ignored.
+
+## AI Usage
+Claude was used to quickly test ideas and autocomplete functions, as well as
+provide debugging suggestions.
+Claude was also used to search for hardware wiring instructions and configure
+arduino-cli.
+
+Overarching architecture and code structure was created by us.
