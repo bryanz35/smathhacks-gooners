@@ -7,7 +7,7 @@
  *             M1 = left thruster
  *             M2 = right thruster
  * Comms:    SoftwareSerial pins 10 (RX) / 11 (TX) to Feather ESP32
- *             pin 11 (TX) MUST go through a 5V→3.3V level shifter before Feather RX
+ *             pin 11 (TX) MUST go through a 5V->3.3V resistor divider before Feather RX
  *             pin 10 (RX) can connect directly to Feather TX (3.3V is fine for Uno input)
  *
  * Required libraries (install via Library Manager):
@@ -24,11 +24,11 @@
 #define TEMP_PIN  2
 
 // ---------- TDS ----------
-#define VREF    5.0   // Arduino supply voltage
-#define SCOUNT  30    // Median filter sample count
+#define VREF    5.0
+#define SCOUNT  30
 
 // ---------- SoftwareSerial to Feather ----------
-// RX=10 (from Feather TX), TX=11 (to Feather RX via level shifter)
+// RX=10 (from Feather TX), TX=11 (to Feather RX via resistor divider)
 SoftwareSerial feather(10, 11);
 
 // ---------- TEMP SENSOR ----------
@@ -39,7 +39,7 @@ DallasTemperature tempSensor(&oneWire);
 Adafruit_MotorShield AFMS;
 Adafruit_DCMotor *leftMotor  = AFMS.getMotor(1);  // M1
 Adafruit_DCMotor *rightMotor = AFMS.getMotor(2);  // M2
-#define MOTOR_SPEED 200  // 0–255
+#define MOTOR_SPEED 200
 
 // ---------- STATE ----------
 int analogBuffer[SCOUNT];
@@ -76,11 +76,10 @@ void turnRight()     { leftMotor->run(FORWARD);  rightMotor->run(BACKWARD); }
 
 // ---------- SETUP ----------
 void setup() {
-  Serial.begin(115200);   // USB debug
-  feather.begin(9600);    // Talk to Feather ESP32
+  Serial.begin(115200);  // USB debug
+  feather.begin(9600);   // Talk to Feather
 
   tempSensor.begin();
-
   AFMS.begin();
   leftMotor->setSpeed(MOTOR_SPEED);
   rightMotor->setSpeed(MOTOR_SPEED);
@@ -119,7 +118,7 @@ void loop() {
     tempSensor.requestTemperatures();
     float tc = tempSensor.getTempCByIndex(0);
     float tf = tc * 9.0 / 5.0 + 32.0;
-    if (tc != -127.0) temperature = tc;  // keep last good reading on error
+    if (tc != -127.0) temperature = tc;
 
     float avgV  = getMedianNum(analogBuffer, SCOUNT) * VREF / 1024.0;
     float compV = avgV / (1.0 + 0.02 * (temperature - 25.0));
@@ -127,13 +126,12 @@ void loop() {
                  - 255.86 * pow(compV, 2)
                  + 857.39 * compV) * 0.5;
 
-    // Compact JSON — Feather parses this with ArduinoJson
     String json = "{\"tc\":" + String(tc, 1)  +
                   ",\"tf\":" + String(tf, 1)  +
                   ",\"tds\":"+ String(tds, 0) +
                   ",\"q\":\"" + qualityLabel(tds) + "\"}";
 
-    Serial.println(json);    // USB debug (Arduino IDE Serial Monitor)
-    feather.println(json);   // Send to Feather
+    Serial.println(json);   // USB debug
+    feather.println(json);  // Send to Feather
   }
 }

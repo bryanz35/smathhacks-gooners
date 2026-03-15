@@ -5,10 +5,9 @@
  *   app.py      --> Feather --> Arduino  motor commands (F/B/L/R/S)
  *
  * Wiring (use a 3.3V level shifter on the TX line from the Uno!):
- *   Feather GPIO32 (A7)  <-- Arduino pin 1 TX  [level shifter: 5V->3.3V]
- *   Feather GPIO33 (A9)  --> Arduino pin 0 RX  [direct: 3.3V is fine for Uno input]
+ *   Feather TX --> Arduino pin 10 (RX)  [direct]
+ *   Feather RX <-- Arduino pin 11 (TX)  [through resistor divider: 5V->3.3V]
  *   GND <-> GND
- *   NOTE: GPIO16/17 are PSRAM on Feather ESP32 V2 — do NOT use them
  *
  * app.py endpoints this server provides:
  *   POST http://<feather_ip>/command   body: {"cmd":"F"}
@@ -27,11 +26,9 @@ const char* WIFI_SSID = "Bryan_phone";
 const char* WIFI_PASS = "bryan123";
 // --------------------------
 
-// Serial2 to Arduino Uno
-// GPIO16/17 are reserved for PSRAM on Feather ESP32 V2 — use 32/33 instead
-HardwareSerial ArduinoSerial(2);
-#define ARDUINO_RX_PIN 32   // Feather pin labeled A7  <- Arduino pin 1 (TX) via level shifter
-#define ARDUINO_TX_PIN 33   // Feather pin labeled A9  -> Arduino pin 0 (RX)
+HardwareSerial ArduinoSerial(1);
+#define ARDUINO_RX_PIN 7
+#define ARDUINO_TX_PIN 8
 
 WebServer server(80);
 
